@@ -1,4 +1,4 @@
-resource "helm_release" "minio_operator" {
+resource "helm_release" "operator" {
   name             = "minio"
   repository       = "https://operator.min.io/"
   chart            = "minio-operator"

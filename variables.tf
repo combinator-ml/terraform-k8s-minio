@@ -1,7 +1,13 @@
-variable "namespace" {
-  description = "(Optional) The namespace to install the release into. Defaults to minio-operator"
+variable "operator_namespace" {
+  description = "(Optional) The namespace to install the minio operator into. Defaults to minio-operator"
   type        = string
   default     = "minio-operator"
+}
+
+variable "tenant_namespace" {
+  description = "(Optional) The namespace to install the minio tenant into. Defaults to default"
+  type        = string
+  default     = "default"
 }
 
 variable "values" {
