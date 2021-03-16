@@ -10,6 +10,12 @@ variable "tenant_namespace" {
   default     = "default"
 }
 
+variable "MINIO_ROOT_USER" {
+  description = "(Optional) The tenant's root username. Defaults to minio"
+  type        = string
+  default     = "minio"
+}
+
 variable "values" {
   description = "(Optional) List of values in raw yaml to pass to helm. See https://github.com/pachyderm/helmchart/blob/master/pachyderm/values.yaml."
   type        = list(string)
