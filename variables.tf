@@ -16,10 +16,22 @@ variable "MINIO_ROOT_USER" {
   default     = "minio"
 }
 
+variable "CONSOLE_ACCESS_KEY" {
+  description = "(Optional) The Minio console username."
+  type        = string
+  default     = "admin"
+}
+
 variable "values" {
   description = "(Optional) List of values in raw yaml to pass to helm. See https://github.com/pachyderm/helmchart/blob/master/pachyderm/values.yaml."
   type        = list(string)
   default = [<<EOT
 EOT 
   ]
+}
+
+variable "enable_tenant" {
+  description = "(Optional) Enable the deployment of an example minio client."
+  type        = bool
+  default     = true
 }

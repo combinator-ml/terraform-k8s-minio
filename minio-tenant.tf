@@ -4,6 +4,7 @@ resource "random_password" "root_password" {
 }
 
 resource "kubernetes_secret" "access" {
+  count = var.enable_tenant ? length(data.kubectl_file_documents.manifests.documents) : 0
   metadata {
     name      = "minio-creds-secret"
     namespace = var.tenant_namespace
@@ -33,6 +34,8 @@ resource "random_password" "console_password" {
 }
 
 resource "kubernetes_secret" "console" {
+  count = var.enable_tenant ? length(data.kubectl_file_documents.manifests.documents) : 0
+
   metadata {
     name      = "console-secret"
     namespace = var.tenant_namespace
@@ -41,7 +44,7 @@ resource "kubernetes_secret" "console" {
   data = {
     CONSOLE_PBKDF_PASSPHRASE = base64encode(random_password.passphrase.result)
     CONSOLE_PBKDF_SALT       = base64encode(random_password.salt.result)
-    CONSOLE_ACCESS_KEY       = base64encode("admin")
+    CONSOLE_ACCESS_KEY       = base64encode(var.CONSOLE_ACCESS_KEY)
     CONSOLE_SECRET_KEY       = base64encode(random_password.console_password.result)
   }
 
@@ -53,7 +56,7 @@ data "kubectl_file_documents" "manifests" {
 }
 
 resource "kubectl_manifest" "tenant" {
-  count              = length(data.kubectl_file_documents.manifests.documents)
+  count              = var.enable_tenant ? length(data.kubectl_file_documents.manifests.documents) : 0
   yaml_body          = element(data.kubectl_file_documents.manifests.documents, count.index)
   override_namespace = var.tenant_namespace
   depends_on = [
