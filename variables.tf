@@ -26,6 +26,32 @@ variable "values" {
   description = "(Optional) List of values in raw yaml to pass to helm. See https://github.com/pachyderm/helmchart/blob/master/pachyderm/values.yaml."
   type        = list(string)
   default = [<<EOT
+operator:
+  clusterDomain: ""
+  nsToWatch: ""
+  image:
+    repository: minio/operator
+    tag: v4.0.5
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  replicaCount: 1
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+      ephemeral-storage: 500Mi
+console:
+  image:
+    repository: minio/console
+    tag: v0.6.3
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  resources: {}
+tenants: {}
 EOT 
   ]
 }

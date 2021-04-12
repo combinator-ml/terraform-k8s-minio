@@ -2,7 +2,7 @@
 apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
-  name: minio
+  name: minio-tenant
   ## Optionally pass labels to be applied to the statefulset pods
   labels:
     app: minio
@@ -23,9 +23,8 @@ spec:
   imagePullPolicy: IfNotPresent
 
   ## Secret with credentials to be used by MinIO Tenant.
-  ## Refers to the secret object created above.
   credsSecret:
-    name: minio-creds-secret
+    name: minio-tenant-credentials-secret
 
   ## Specification for MinIO Pool(s) in this Tenant.
   pools:
@@ -47,7 +46,8 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Ti
+              storage: 10Gi
+          storageClassName: local-path
 
       ## Used to specify a toleration for a pod
       # tolerations:
@@ -100,7 +100,7 @@ spec:
   ## TLS for MinIO Tenant pods. Create secrets as explained here:
   ## https://github.com/minio/minio/tree/master/docs/tls/kubernetes#2-create-kubernetes-secret
   # externalCertSecret:
-  #   - name: tls-ssl-minio
+  #   - name: minio-tenant-tls-secret
   #     type: kubernetes.io/tls
 
   ## Enable automatic Kubernetes based certificate generation and signing as explained in
@@ -116,10 +116,10 @@ spec:
   ## This field is used only when "requestAutoCert" is set to true. Use this field to set CommonName
   ## for the auto-generated certificate. Internal DNS name for the pod will be used if CommonName is
   ## not provided. DNS name format is *.minio.default.svc.cluster.local
-  certConfig:
-    commonName: ""
-    organizationName: []
-    dnsNames: []
+  # certConfig:
+  #   commonName: ""
+  #   organizationName: []
+  #   dnsNames: []
 
   ## PodManagement policy for MinIO Tenant Pods. Can be "OrderedReady" or "Parallel"
   ## Refer https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#pod-management-policy
@@ -130,13 +130,13 @@ spec:
   ## services created by the operator.
   serviceMetadata:
     minioServiceLabels:
-      label: minio-svc
+      label: minio-tenant-svc
     minioServiceAnnotations:
-      v2.min.io: minio-svc
+      v2.min.io: minio-tenant-svc
     consoleServiceLabels:
-      label: console-svc
+      label: minio-tenant-console-svc
     consoleServiceAnnotations:
-      v2.min.io: console-svc
+      v2.min.io: minio-tenant-console-svc
 
   ## Add environment variables to be set in MinIO container (https://github.com/minio/minio/tree/master/docs/config)
   # env:
@@ -154,10 +154,6 @@ spec:
   ## Refer https://github.com/minio/console
   console:
     image: minio/console:v0.6.3
-    replicas: 2
+    replicas: 1
     consoleSecret:
-      name: console-secret
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 2000
-      runAsNonRoot: true
+      name: minio-tenant-console-secret

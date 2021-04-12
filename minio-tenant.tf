@@ -1,18 +1,18 @@
-resource "random_password" "root_password" {
+resource "random_password" "minio_password" {
   length  = 16
-  special = true
+  special = false
 }
 
 resource "kubernetes_secret" "access" {
   count = var.enable_tenant ? length(data.kubectl_file_documents.manifests.documents) : 0
   metadata {
-    name      = "minio-creds-secret"
+    name      = local.minio_credentials_secret_name
     namespace = var.tenant_namespace
   }
 
   data = {
-    accesskey = base64encode(var.MINIO_ROOT_USER)
-    secretkey = base64encode(random_password.root_password.result)
+    accesskey = var.MINIO_ROOT_USER
+    secretkey = random_password.minio_password.result
   }
 
   type = "Opaque"
@@ -30,22 +30,22 @@ resource "random_password" "salt" {
 
 resource "random_password" "console_password" {
   length  = 16
-  special = true
+  special = false
 }
 
 resource "kubernetes_secret" "console" {
   count = var.enable_tenant ? length(data.kubectl_file_documents.manifests.documents) : 0
 
   metadata {
-    name      = "console-secret"
+    name      = "minio-tenant-console-secret"
     namespace = var.tenant_namespace
   }
 
   data = {
-    CONSOLE_PBKDF_PASSPHRASE = base64encode(random_password.passphrase.result)
-    CONSOLE_PBKDF_SALT       = base64encode(random_password.salt.result)
-    CONSOLE_ACCESS_KEY       = base64encode(var.CONSOLE_ACCESS_KEY)
-    CONSOLE_SECRET_KEY       = base64encode(random_password.console_password.result)
+    CONSOLE_PBKDF_PASSPHRASE = random_password.passphrase.result
+    CONSOLE_PBKDF_SALT       = random_password.salt.result
+    CONSOLE_ACCESS_KEY : var.CONSOLE_ACCESS_KEY
+    CONSOLE_SECRET_KEY : random_password.console_password.result
   }
 
   type = "Opaque"
