@@ -1,15 +1,5 @@
-provider "helm" {
-  kubernetes {
-    config_path = "~/.kube/config"
-  }
-}
-
-provider "kubernetes" {
-  config_path = "~/.kube/config"
-}
-
 module "minio" {
-  source        = "../"
+  source        = "../../"
   enable_tenant = true
 }
 
@@ -26,6 +16,7 @@ output "MINIO_ROOT_USER" {
 output "MINIO_ROOT_PASSWORD" {
   description = "Minio root password"
   value       = module.minio.MINIO_ROOT_PASSWORD
+  sensitive   = true
 }
 
 output "CONSOLE_ACCESS_KEY" {
@@ -36,4 +27,5 @@ output "CONSOLE_ACCESS_KEY" {
 output "CONSOLE_SECRET_KEY" {
   description = "Minio console password"
   value       = module.minio.CONSOLE_SECRET_KEY
+  sensitive   = true
 }
